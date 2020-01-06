@@ -56,13 +56,20 @@
 const express = require('express');
 const http = require('http');
 
+// HTTP request logger middleware for node.js
+const morgan = require('morgan');
+
 const hostname = 'localhost';
 const port = 3000;
 
 const app = express();
+app.use(morgan('dev'));
 
+// serve static files
+app.use(express.static(__dirname + '/public'));
+
+// if request for non-existent route, default will serve the default value
 app.use((req, res, next) => {
-  console.log(req.headers);
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
   res.end('<html><body><h1>This is an Express Server</h1></body></html>');
