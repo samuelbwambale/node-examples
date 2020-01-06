@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/samuelbwambale/node-examples/issues"
   },
-  "homepage": "https://github.com/samuelbwambale/node-examples#readme"
+  "homepage": "https://github.com/samuelbwambale/node-examples#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
