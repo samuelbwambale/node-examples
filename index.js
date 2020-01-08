@@ -55,20 +55,79 @@
 // 1 - Build Node Server with Express framework/package
 const express = require('express');
 const http = require('http');
-
-// HTTP request logger middleware for node.js
-const morgan = require('morgan');
+const morgan = require('morgan'); // HTTP request logger middleware for node.js
+const bodyParser = require('body-parser')
 
 const hostname = 'localhost';
 const port = 3000;
 
 const app = express();
 app.use(morgan('dev'));
+app.use(bodyParser.json())  // allows us to extract the body of the request message in JSON format. 
+                            // when we use the body parser, what happens is that for the incoming request, 
+                            // the body of the incoming request will be parsed and then added into the 'req' object as req.body. 
+                            // So the req.body will give you access to whatever is inside that body of the message
+
+app.all('/dishes', (req, res, next) => {
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'text/plain')
+    next(); // go to next Api call
+})
+
+app.get('/dishes', (req, res, next) => {    // no need to repeat settign the statusCode and Header
+                                            // will pick the modified 'res' from app.all()
+    res.end('Will send all dishes to you')
+})
+
+app.post('/dishes', (req, res, next) => {
+    res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
+})
+
+app.put('/dishes', (req, res, next) => {
+    res.statusCode = 403;
+    res.end('PUT operation not supported on /dishes');
+  });
+   
+  app.delete('/dishes', (req, res, next) => {
+      res.end('Deleting all dishes');
+  });
+  
+  app.get('/dishes/:dishId', (req,res,next) => {
+      res.end('Will send details of the dish: ' + req.params.dishId +' to you!');
+  });
+  
+  app.post('/dishes/:dishId', (req, res, next) => {
+    res.statusCode = 403;
+    res.end('POST operation not supported on /dishes/'+ req.params.dishId);
+  });
+  
+  app.put('/dishes/:dishId', (req, res, next) => {
+    res.write('Updating the dish: ' + req.params.dishId + '\n');
+    res.end('Will update the dish: ' + req.body.name + 
+          ' with details: ' + req.body.description);
+
+        /* req.query, req.params and req.body 
+
+        req.query comes from query parameters in the URL such as http://foo.com/somePath?name=ted 
+        where req.query.name === "ted".
+
+        req.params comes from path segments of the URL that match a parameter in the route definition 
+        such as /song/:songid. So, with a route using that designation and a URL such as /song/48586, 
+        then req.params.songid === "48586".
+
+        req.body properties come from a form post where the form data (which is submitted in the body contents) 
+        has been parsed into properties of the body tag.
+        */
+  });
+  
+  app.delete('/dishes/:dishId', (req, res, next) => {
+      res.end('Deleting dish: ' + req.params.dishId);
+  });
 
 // serve static files
 app.use(express.static(__dirname + '/public'));
 
-// if request for non-existent route, default will serve the default value
+// if request for non-existent route, server will serve the default value
 app.use((req, res, next) => {
   res.statusCode = 200;
   res.setHeader('Content-Type', 'text/html');
