@@ -52,11 +52,12 @@
 // });
 
 
-// 1 - Build Node Server with Express framework/package
+// 2 - Build Node Server with Express framework/package
 const express = require('express');
 const http = require('http');
 const morgan = require('morgan'); // HTTP request logger middleware for node.js
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const dishRouter = require('./routes/dishRouter');
 
 const hostname = 'localhost';
 const port = 3000;
@@ -68,29 +69,7 @@ app.use(bodyParser.json())  // allows us to extract the body of the request mess
                             // the body of the incoming request will be parsed and then added into the 'req' object as req.body. 
                             // So the req.body will give you access to whatever is inside that body of the message
 
-app.all('/dishes', (req, res, next) => {
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'text/plain')
-    next(); // go to next Api call
-})
 
-app.get('/dishes', (req, res, next) => {    // no need to repeat settign the statusCode and Header
-                                            // will pick the modified 'res' from app.all()
-    res.end('Will send all dishes to you')
-})
-
-app.post('/dishes', (req, res, next) => {
-    res.end('Will add the dish: ' + req.body.name + ' with details: ' + req.body.description);
-})
-
-app.put('/dishes', (req, res, next) => {
-    res.statusCode = 403;
-    res.end('PUT operation not supported on /dishes');
-  });
-   
-  app.delete('/dishes', (req, res, next) => {
-      res.end('Deleting all dishes');
-  });
   
   app.get('/dishes/:dishId', (req,res,next) => {
       res.end('Will send details of the dish: ' + req.params.dishId +' to you!');
@@ -124,8 +103,8 @@ app.put('/dishes', (req, res, next) => {
       res.end('Deleting dish: ' + req.params.dishId);
   });
 
-// serve static files
-app.use(express.static(__dirname + '/public'));
+app.use('/dishes', dishRouter); // mount the dishRouter, any request to /dishes will be handled by dishRouter
+app.use(express.static(__dirname + '/public')); // serve static files
 
 // if request for non-existent route, server will serve the default value
 app.use((req, res, next) => {
