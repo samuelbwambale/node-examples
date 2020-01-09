@@ -51,7 +51,6 @@
 //   console.log(`Server running at http://${hostname}:${port}/`);
 // });
 
-
 // 2 - Build Node Server with Express framework/package
 const express = require('express');
 const http = require('http');
@@ -70,6 +69,7 @@ app.use(bodyParser.json())  // allows us to extract the body of the request mess
                             // when we use the body parser, what happens is that for the incoming request, 
                             // the body of the incoming request will be parsed and then added into the 'req' object as req.body. 
                             // So the req.body will give you access to whatever is inside that body of the message
+
 
 /* req.query, req.params and req.body 
 
@@ -96,7 +96,7 @@ app.use((req, res, next) => { // if request for non-existent route, server will 
 
 });
 
-const server = http.createServer(app);
+const server = http.createServer(app); // create http server instance
 
 server.listen(port, hostname, () => {
   console.log(`Server running at http://${hostname}:${port}/`);
