@@ -10,12 +10,12 @@
 
 // const server = http.createServer((req, res) => {
 //     console.log('Request for ' + req.url + ' by method ' + req.method);
-  
+
 //     if (req.method == 'GET') {
 //       let fileUrl;
 //       if (req.url == '/') fileUrl = '/index.html';
 //       else fileUrl = req.url;
-  
+
 //       let filePath = path.resolve('./public'+fileUrl);
 //       const fileExt = path.extname(filePath);
 //       if (fileExt == '.html') {
@@ -62,14 +62,14 @@ const promoRouter = require('./routes/promoRouter');
 const leaderRouter = require('./routes/leaderRouter');
 
 const hostname = 'localhost';
-const port = 3000;
+const port = 3001;
 
 const app = express();
 app.use(morgan('dev'));
 app.use(bodyParser.json())  // allows us to extract the body of the request message in JSON format. 
-                            // when we use the body parser, what happens is that for the incoming request, 
-                            // the body of the incoming request will be parsed and then added into the 'req' object as req.body. 
-                            // So the req.body will give you access to whatever is inside that body of the message
+// when we use the body parser, what happens is that for the incoming request, 
+// the body of the incoming request will be parsed and then added into the 'req' object as req.body. 
+// So the req.body will give you access to whatever is inside that body of the message
 
 /* req.query, req.params and req.body 
 
@@ -83,6 +83,52 @@ app.use(bodyParser.json())  // allows us to extract the body of the request mess
     req.body properties come from a form post where the form data (which is submitted in the body contents) 
     has been parsed into properties of the body tag.
 */
+
+const mongoose = require('mongoose')
+const Dishes = require('./models/dishes')
+
+const url = 'mongodb://localhost:27017/acme';
+const connect = mongoose.connect(url, { useNewUrlParser: true });
+connect.then((db) => {
+  console.log('Connected correctly to Server');
+
+  Dishes.create({
+    name: 'New Dishes',
+    description: 'test'
+  })
+    .then((dish) => {
+      console.log(dish);
+
+      return Dishes.findByIdAndUpdate(dish._id, {
+        $set: { description: 'Updated test' }
+      }, {
+        new: true
+      })
+        .exec();
+    })
+    .then((dish) => {
+      console.log(dish);
+
+      dish.comments.push({
+        rating: 5,
+        comment: 'I\'m getting a sinking feeling!',
+        author: 'Leonardo di Carpaccio'
+      });
+
+      return dish.save();
+    })
+    .then((dish) => {
+      console.log(dish);
+
+      return Dishes.deleteMany({});
+    })
+    .then(() => {
+      return mongoose.connection.close();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+})
 
 app.use('/dishes', dishRouter); // mount the dishRouter, any request to /dishes will be handled by dishRouter
 app.use('/promotions', promoRouter);
